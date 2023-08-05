@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+        crossorigin="anonymous"></script>
+
+
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+</head>
+
+<body>
+
+    <main class="container">
+        <h1 class="text-center">MONITOR DE INVENTARIO</h1>
+        <section>
+            <h2>Filtros:</h2>
+
+            <form action="" id="formFiltros">
+                Tienda: <select name="tienda" id="selectTiendas">Tiendas</select>
+                <button class="btn btn-primary">Filtrar</button>
+            </form>
+
+        </section>
+        <section>
+            <table class="table" id="dataInventario">
+                <thead>
+                    <tr>
+                        <th scope="col">Tienda</th>
+                        <th scope="col">ID Producto</th>
+                        <th scope="col">Nombre Producto</th>
+                        <th scope="col">Inventario</th>
+                        <th scope="col">Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="cuerpoTabla">
+                </tbody>
+            </table>
+        </section>
+
+    </main>
+
+</body>
+
+</html>
+
+
+<script>
+
+    let cuerpoTabla = document.getElementById("cuerpoTabla");
+    let data = new DataTable('#dataInventario');
+
+    const cargarDatos = (inventario) => {
+        cuerpoTabla.innerHTML = "";
+        let filas = "";
+        inventario.forEach(tienda => {
+            let productos = tienda.productos;
+            productos.forEach(producto => {
+                filas += `
+                    <tr>
+                        <th scope="row">${tienda.store_name}</th>
+                        <td>${producto.product_id}</td>
+                        <td>${producto.product_name}</td>
+                        <td>${producto.Stocks.quantity}</td>
+                        <td><button class="btn btn-primary">Ver</button></td>
+                    </tr>
+                `
+
+            })
+        });
+        cuerpoTabla.innerHTML = filas;
+        data = new DataTable('#dataInventario');
+        console.log(data);
+    }
+
+
+    let selectTiendas = document.getElementById("selectTiendas");
+    const cargarSelects = (inventario) => {
+        let optionsTiendas = "<option value=''>Todas</option>";
+        inventario.forEach(tienda => {
+            optionsTiendas += `
+                <option value="${tienda.store_id}">${tienda.store_name}</option>
+            `
+        });
+        selectTiendas.innerHTML = optionsTiendas;
+    }
+
+    (async () => {
+
+        try {
+            let response = await fetch("http://localhost:3000/api/inventario");
+            let result = await response.json();
+
+            if (result.code == 200) {
+                console.log(result.inventario);
+                cargarDatos(result.inventario);
+                cargarSelects(result.inventario);
+            } else {
+                alert(result.message);
+            }
+        } catch (error) {
+            console.log(error);
+            alert("Error al consultar el inventario.")
+        }
+
+    })();
+
+
+
+    let formFiltros = document.getElementById("formFiltros");
+    formFiltros.addEventListener("submit", async (event) => {
+        try {
+            event.preventDefault();
+            let option = selectTiendas.value;
+            let response = await fetch(`http://localhost:3000/api/inventario?tienda=${option}`);
+            let result = await response.json();
+
+            if (result.code == 200) {
+                console.log(result.inventario);
+                cargarDatos(result.inventario);
+            } else {
+                alert(result.message);
+            }
+        } catch (error) {
+            cosole.log(error);
+            alert("Error al consultar el inventario.")
+        }
+    })
+
+
+</script>

@@ -21,8 +21,8 @@ export default function initModels(sequelize) {
   const Stocks = _Stocks.init(sequelize, DataTypes);
   const Stores = _Stores.init(sequelize, DataTypes);
 
-  Products.belongsToMany(Stores, { as: 'store_id_stores', through: Stocks, foreignKey: "product_id", otherKey: "store_id" });
-  Stores.belongsToMany(Products, { as: 'product_id_products', through: Stocks, foreignKey: "store_id", otherKey: "product_id" });
+  Products.belongsToMany(Stores, { as: 'tiendas', through: Stocks, foreignKey: "product_id", otherKey: "store_id" });
+  Stores.belongsToMany(Products, { as: 'productos', through: Stocks, foreignKey: "store_id", otherKey: "product_id" });
   Products.belongsTo(Brands, { as: "brand", foreignKey: "brand_id"});
   Brands.hasMany(Products, { as: "products", foreignKey: "brand_id"});
   Products.belongsTo(Categories, { as: "category", foreignKey: "category_id"});
